@@ -1,0 +1,39 @@
+seed: 42
+n_folds: 5
+group_col: patient  # column in manifest to use for grouped CV (Patient = 126 groups)
+
+data:
+  labeled_dir: /shared/users/hassan2/brats/dataset/BraTS-PATH-2026-Training-Labeled-Set
+  val_dir: /shared/users/hassan2/brats/dataset/BraTS-Path-2026-Validation-Set
+  preprocessed_dir: /shared/users/hassan2/brats/preprocessed
+  # null = use all 1.63M patches; set e.g. 20000 for a fast dev run
+  max_patches_per_class: null
+
+output_dir: /shared/users/hassan2/brats-t5/runs
+
+image_size: 224  # resize from 512x512 for backbone input
+
+train:
+  model: efficientnet_b0
+  pretrained: true
+  epochs: 15
+  batch_size: 128
+  lr: 3.0e-4
+  weight_decay: 0.01
+  early_stop_patience: 3
+  num_workers: 8
+  label_smoothing: 0.1
+
+features:
+  models:
+    - uni2h
+    - virchow2
+  batch_size: 64
+  num_workers: 4
+  fp16: true  # use float16 on GPU for feature extraction
+
+probe:
+  C: 1.0
+  max_iter: 1000
+  tol: 1.0e-4
+  solver: saga

@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# SLURM outputs and run artifacts (logs, checkpoints — too large for git)
+runs/
+
+# Smoke test generated data
+smoke_run/
+
+# Preprocessed data lives in brats/preprocessed/ (outside this repo)
+# Nothing to ignore here, but note: features/*.npz can be 10-25 GB
+
+# OS
+.DS_Store
