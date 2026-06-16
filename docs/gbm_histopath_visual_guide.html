@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Read a GBM Histopathology Slide</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;color:#1a1a1a;padding:2rem 1rem}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:20px;font-weight:600;margin-bottom:4px}
+.sub{font-size:13px;color:#666;margin-bottom:2rem}
+.section{margin-bottom:3rem}
+.sec-title{font-size:16px;font-weight:600;margin-bottom:14px;padding-bottom:8px;border-bottom:1.5px solid #e0ddd6}
+.prose{font-size:13px;color:#555;line-height:1.65;margin-bottom:12px}
+.divider{height:1px;background:#e0ddd6;margin:2rem 0}
+
+/* First — what is H&E */
+.he-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.he-card{background:#fff;border:1px solid #e0ddd6;border-radius:8px;padding:14px}
+.he-card .label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.he-card .name{font-size:14px;font-weight:600;margin-bottom:4px}
+.he-card .desc{font-size:12px;color:#555;line-height:1.55}
+.color-swatch{width:100%;height:36px;border-radius:6px;margin-bottom:8px;border:1px solid rgba(0,0,0,.08)}
+
+/* Class cards */
+.class-card{background:#fff;border:1px solid #e0ddd6;border-radius:10px;margin-bottom:16px;overflow:hidden}
+.class-header{display:flex;align-items:center;gap:14px;padding:14px 16px 10px}
+.class-id-bubble{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.class-name{font-size:15px;font-weight:600;margin-bottom:2px}
+.class-aka{font-size:11px;color:#888}
+.class-body{padding:0 16px 14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.cue{background:#f9f8f5;border-radius:6px;padding:10px 12px;border:1px solid #e8e5de}
+.cue-icon{font-size:18px;margin-bottom:4px}
+.cue-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:4px}
+.cue-desc{font-size:12px;color:#444;line-height:1.5}
+
+/* microscope simulator */
+.scope-wrap{background:#fff;border:1px solid #e0ddd6;border-radius:10px;overflow:hidden;margin-bottom:16px}
+.scope-header{padding:12px 16px;border-bottom:1px solid #e8e5de;display:flex;align-items:center;gap:10px}
+.scope-header .title{font-size:14px;font-weight:600}
+.scope-header .subtitle{font-size:12px;color:#888}
+.scope-canvas{width:100%;position:relative;overflow:hidden;cursor:crosshair}
+.scope-canvas svg{display:block;width:100%}
+.callout-dot{cursor:pointer;transition:r .15s}
+.callout-dot:hover{r:9}
+.tooltip{position:absolute;background:#1a1a1a;color:#fff;font-size:11px;padding:6px 10px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;max-width:180px;line-height:1.4;z-index:10}
+
+/* normal vs tumor comparison */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#555}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* stain variation */
+.stain-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stain-card{border-radius:8px;overflow:hidden;border:1px solid #e0ddd6}
+.stain-preview{height:70px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;letter-spacing:.04em}
+.stain-label{padding:6px 8px;background:#fff;font-size:11px;color:#555;text-align:center}
+
+/* quick rules */
+.rule-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rule-item{background:#fff;border:1px solid #e0ddd6;border-radius:8px;padding:10px 12px;display:flex;gap:8px;align-items:flex-start}
+.rule-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.rule-text{font-size:12px;color:#444;line-height:1.5}
+.rule-text strong{color:#1a1a1a;display:block;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>🔬 How do you spot a tumor in a histopathology slide?</h1>
+<p class="sub">A visual guide to what pathologists (and AI) look for in H&E stained GBM tissue — colour, shape, density, and structure</p>
+
+<!-- SECTION 0: What is H&E -->
+<div class="section">
+  <div class="sec-title">Step 0 — What is H&E staining?</div>
+  <p class="prose">Before you can read a slide, you need to understand the two dyes used. Every tissue slide in this challenge is stained with <strong>Haematoxylin and Eosin (H&E)</strong> — the most common stain in pathology. Each dye targets a different part of the cell.</p>
+  <div class="he-grid">
+    <div class="he-card">
+      <div class="color-swatch" style="background:linear-gradient(90deg,#6B4FA0,#8B6BB1,#A688C4)"></div>
+      <div class="label" style="color:#6B4FA0">Haematoxylin — the purple/blue dye</div>
+      <div class="name">Stains: cell nuclei (DNA)</div>
+      <div class="desc">Anything with DNA turns dark purple/blue. In a normal brain there are relatively few nuclei per area. In a tumor, nuclei are packed densely — so a crowded purple patch = suspicious. Nuclei also change shape: normal ones are round and regular; tumor nuclei are irregular, enlarged, and sometimes bizarre-shaped.</div>
+    </div>
+    <div class="he-card">
+      <div class="color-swatch" style="background:linear-gradient(90deg,#E8A0B0,#F0C0CC,#F8E0E4)"></div>
+      <div class="label" style="color:#C0607A">Eosin — the pink/red dye</div>
+      <div class="name">Stains: cytoplasm, proteins, connective tissue</div>
+      <div class="desc">Everything else turns pink — cell bodies, blood, collagen fibers, brain tissue. In necrotic (dead) zones, the pink eosin signal becomes pale and ghost-like because the protein structure has broken down. Blood vessels stain bright pink-red. Normal brain tissue is a pale pink background.</div>
+    </div>
+  </div>
+  <div style="background:#E8F4E8;border-radius:8px;padding:12px 14px;border:1px solid #B8DDB8">
+    <p style="font-size:13px;color:#2d6a2d;line-height:1.6"><strong>The golden rule:</strong> In a normal brain, you see few purple nuclei scattered in pale pink. In a GBM tumor, purple nuclei become dense, irregular, and clustered — because cancer cells are dividing rapidly and crowding into spaces where they don't belong. When you see a sudden shift from sparse pale pink to dense dark purple → that boundary is where you look first.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION 1: Normal vs Tumor -->
+<div class="section">
+  <div class="sec-title">Normal brain vs GBM tumor — the core visual difference</div>
+  <div class="compare-grid">
+    <!-- Normal brain SVG -->
+    <div class="scope-wrap">
+      <div class="scope-header">
+        <div>
+          <div class="title">✅ Normal brain tissue</div>
+          <div class="subtitle">Sparse nuclei, uniform pink background</div>
+        </div>
+      </div>
+      <svg viewBox="0 0 400 260" style="background:#F9E8F0">
+        <!-- pale pink background = eosin / neuropil -->
+        <rect width="400" height="260" fill="#FAE8F0"/>
+        <!-- sparse normal cells — few and round and regular -->
+        <!-- neurons scattered, small round nuclei -->
+        <circle cx="45" cy="40" r="7" fill="#D4A0C0" opacity=".6"/>
+        <circle cx="45" cy="40" r="3" fill="#7B4F90"/>
+        <circle cx="120" cy="70" r="7" fill="#D4A0C0" opacity=".5"/>
+        <circle cx="120" cy="70" r="3" fill="#7B4F90"/>
+        <circle cx="200" cy="30" r="7" fill="#D4A0C0" opacity=".6"/>
+        <circle cx="200" cy="30" r="3" fill="#7B4F90"/>
+        <circle cx="310" cy="55" r="7" fill="#D4A0C0" opacity=".5"/>
+        <circle cx="310" cy="55" r="3" fill="#7B4F90"/>
+        <circle cx="370" cy="90" r="7" fill="#D4A0C0" opacity=".6"/>
+        <circle cx="370" cy="90" r="3" fill="#7B4F90"/>
+        <circle cx="80" cy="140" r="7" fill="#D4A0C0" opacity=".5"/>
+        <circle cx="80" cy="140" r="3" fill="#7B4F90"/>
+        <circle cx="170" cy="160" r="7" fill="#D4A0C0" opacity=".6"/>
+        <circle cx="170" cy="160" r="3" fill="#7B4F90"/>
+        <circle cx="270" cy="145" r="7" fill="#D4A0C0" opacity=".5"/>
+        <circle cx="270" cy="145" r="3" fill="#7B4F90"/>
+        <circle cx="350" cy="175" r="7" fill="#D4A0C0" opacity=".6"/>
+        <circle cx="350" cy="175" r="3" fill="#7B4F90"/>
+        <circle cx="50" cy="220" r="7" fill="#D4A0C0" opacity=".5"/>
+        <circle cx="50" cy="220" r="3" fill="#7B4F90"/>
+        <circle cx="140" cy="235" r="7" fill="#D4A0C0" opacity=".6"/>
+        <circle cx="140" cy="235" r="3" fill="#7B4F90"/>
+        <circle cx="240" cy="220" r="7" fill="#D4A0C0" opacity=".5"/>
+        <circle cx="240" cy="220" r="3" fill="#7B4F90"/>
+        <circle cx="340" cy="240" r="7" fill="#D4A0C0" opacity=".6"/>
+        <circle cx="340" cy="240" r="3" fill="#7B4F90"/>
+        <!-- normal blood vessel — clean thin walls -->
+        <ellipse cx="290" cy="100" rx="18" ry="10" fill="none" stroke="#E87090" stroke-width="2"/>
+        <text x="200" y="200" text-anchor="middle" font-size="11" fill="#B07090" font-style="italic">few, regular, round nuclei</text>
+        <text x="200" y="215" text-anchor="middle" font-size="11" fill="#B07090" font-style="italic">uniform pale pink background</text>
+      </svg>
+    </div>
+    <!-- Tumor SVG -->
+    <div class="scope-wrap">
+      <div class="scope-header">
+        <div>
+          <div class="title">🔴 GBM cellular tumor (CT)</div>
+          <div class="subtitle">Dense irregular nuclei, crowded, no empty space</div>
+        </div>
+      </div>
+      <svg viewBox="0 0 400 260" style="background:#F0E0F0">
+        <rect width="400" height="260" fill="#EDD8F0"/>
+        <!-- densely packed irregular tumor nuclei -->
+        <!-- row 1 -->
+        <ellipse cx="18" cy="15" rx="8" ry="6" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="38" cy="12" rx="7" ry="9" fill="#5A3090" opacity=".85"/>
+        <ellipse cx="58" cy="18" rx="9" ry="6" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="78" cy="10" rx="6" ry="8" fill="#6A3A98" opacity=".85"/>
+        <ellipse cx="98" cy="16" rx="8" ry="7" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="118" cy="11" rx="7" ry="9" fill="#5A3090" opacity=".85"/>
+        <ellipse cx="140" cy="17" rx="10" ry="6" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="162" cy="12" rx="7" ry="8" fill="#6A3A98" opacity=".85"/>
+        <ellipse cx="183" cy="19" rx="9" ry="6" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="204" cy="11" rx="7" ry="9" fill="#5A3090" opacity=".85"/>
+        <ellipse cx="226" cy="16" rx="8" ry="7" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="248" cy="12" rx="7" ry="8" fill="#6A3A98" opacity=".85"/>
+        <ellipse cx="270" cy="18" rx="9" ry="6" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="292" cy="11" rx="7" ry="9" fill="#5A3090" opacity=".85"/>
+        <ellipse cx="314" cy="17" rx="8" ry="6" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="336" cy="12" rx="6" ry="8" fill="#6A3A98" opacity=".85"/>
+        <ellipse cx="358" cy="18" rx="9" ry="7" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="380" cy="13" rx="7" ry="8" fill="#5A3090" opacity=".85"/>
+        <!-- row 2 -->
+        <ellipse cx="10" cy="40" rx="9" ry="6" fill="#5A3090" opacity=".9"/>
+        <ellipse cx="30" cy="38" rx="7" ry="8" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="52" cy="43" rx="8" ry="7" fill="#6A3A98" opacity=".9"/>
+        <ellipse cx="74" cy="36" rx="7" ry="9" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="96" cy="42" rx="9" ry="6" fill="#5A3090" opacity=".9"/>
+        <ellipse cx="118" cy="37" rx="7" ry="8" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="140" cy="43" rx="8" ry="7" fill="#6A3A98" opacity=".9"/>
+        <ellipse cx="163" cy="36" rx="9" ry="8" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="186" cy="42" rx="7" ry="6" fill="#5A3090" opacity=".9"/>
+        <ellipse cx="209" cy="37" rx="8" ry="9" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="232" cy="43" rx="9" ry="6" fill="#6A3A98" opacity=".9"/>
+        <ellipse cx="255" cy="36" rx="7" ry="8" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="278" cy="42" rx="8" ry="7" fill="#5A3090" opacity=".9"/>
+        <ellipse cx="301" cy="37" rx="7" ry="9" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="324" cy="43" rx="9" ry="6" fill="#6A3A98" opacity=".9"/>
+        <ellipse cx="347" cy="36" rx="7" ry="8" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="370" cy="42" rx="8" ry="7" fill="#5A3090" opacity=".9"/>
+        <!-- rows 3-8 repeat pattern -->
+        <ellipse cx="20" cy="65" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="42" cy="62" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="64" cy="67" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="86" cy="60" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="108" cy="66" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="130" cy="61" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="154" cy="67" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="178" cy="60" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="202" cy="66" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="226" cy="61" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="250" cy="67" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="274" cy="60" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="298" cy="66" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="322" cy="61" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="346" cy="67" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="370" cy="60" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="393" cy="66" rx="8" ry="7" fill="#4A2878" opacity=".9"/>
+        <ellipse cx="15" cy="90" rx="9" ry="6" fill="#5A3090" opacity=".9"/><ellipse cx="38" cy="87" rx="7" ry="9" fill="#4A2878" opacity=".85"/><ellipse cx="62" cy="92" rx="8" ry="7" fill="#6A3A98" opacity=".9"/><ellipse cx="86" cy="85" rx="7" ry="8" fill="#4A2878" opacity=".85"/><ellipse cx="110" cy="91" rx="9" ry="6" fill="#5A3090" opacity=".9"/><ellipse cx="134" cy="86" rx="7" ry="9" fill="#4A2878" opacity=".85"/><ellipse cx="158" cy="92" rx="8" ry="7" fill="#6A3A98" opacity=".9"/><ellipse cx="182" cy="85" rx="9" ry="8" fill="#4A2878" opacity=".85"/><ellipse cx="206" cy="91" rx="7" ry="6" fill="#5A3090" opacity=".9"/><ellipse cx="230" cy="86" rx="8" ry="9" fill="#4A2878" opacity=".85"/><ellipse cx="254" cy="92" rx="9" ry="6" fill="#6A3A98" opacity=".9"/><ellipse cx="278" cy="85" rx="7" ry="8" fill="#4A2878" opacity=".85"/><ellipse cx="302" cy="91" rx="8" ry="7" fill="#5A3090" opacity=".9"/><ellipse cx="326" cy="86" rx="7" ry="9" fill="#4A2878" opacity=".85"/><ellipse cx="350" cy="92" rx="9" ry="6" fill="#6A3A98" opacity=".9"/><ellipse cx="374" cy="85" rx="7" ry="8" fill="#4A2878" opacity=".85"/>
+        <ellipse cx="22" cy="116" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="46" cy="112" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="70" cy="118" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="94" cy="111" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="118" cy="117" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="142" cy="112" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="166" cy="118" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="190" cy="111" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="214" cy="117" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="238" cy="112" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="262" cy="118" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="286" cy="111" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="310" cy="117" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="334" cy="112" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="358" cy="118" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="382" cy="111" rx="7" ry="8" fill="#5A3090" opacity=".85"/>
+        <!-- mitotic figure — large irregular nucleus -->
+        <ellipse cx="200" cy="145" rx="14" ry="10" fill="#3A1860" opacity=".95"/>
+        <text x="200" y="142" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">M</text>
+        <text x="200" y="152" text-anchor="middle" font-size="7" fill="#C8A8E0">mitosis</text>
+        <!-- giant cell -->
+        <ellipse cx="340" cy="155" rx="16" ry="12" fill="#5A2090" opacity=".9"/>
+        <text x="340" y="152" text-anchor="middle" font-size="9" fill="#fff" font-weight="700">G</text>
+        <text x="340" y="162" text-anchor="middle" font-size="7" fill="#C8A8E0">giant cell</text>
+        <!-- more rows -->
+        <ellipse cx="12" cy="140" rx="9" ry="6" fill="#5A3090" opacity=".9"/><ellipse cx="34" cy="137" rx="7" ry="9" fill="#4A2878" opacity=".85"/><ellipse cx="56" cy="143" rx="8" ry="7" fill="#6A3A98" opacity=".85"/><ellipse cx="78" cy="136" rx="7" ry="8" fill="#4A2878" opacity=".85"/><ellipse cx="100" cy="142" rx="9" ry="6" fill="#5A3090" opacity=".9"/><ellipse cx="122" cy="137" rx="7" ry="9" fill="#4A2878" opacity=".85"/><ellipse cx="144" cy="143" rx="8" ry="7" fill="#6A3A98" opacity=".85"/><ellipse cx="166" cy="136" rx="7" ry="8" fill="#4A2878" opacity=".85"/><ellipse cx="260" cy="142" rx="9" ry="6" fill="#5A3090" opacity=".9"/><ellipse cx="280" cy="137" rx="7" ry="9" fill="#4A2878" opacity=".85"/><ellipse cx="300" cy="143" rx="8" ry="7" fill="#6A3A98" opacity=".85"/><ellipse cx="380" cy="142" rx="9" ry="6" fill="#5A3090" opacity=".9"/>
+        <!-- rows 165+ -->
+        <ellipse cx="20" cy="165" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="44" cy="162" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="68" cy="168" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="92" cy="161" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="116" cy="167" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="140" cy="162" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="164" cy="168" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="222" cy="167" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="246" cy="162" rx="7" ry="9" fill="#6A3A98" opacity=".85"/><ellipse cx="270" cy="168" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="294" cy="161" rx="7" ry="8" fill="#5A3090" opacity=".85"/><ellipse cx="318" cy="167" rx="8" ry="7" fill="#4A2878" opacity=".9"/><ellipse cx="362" cy="168" rx="9" ry="6" fill="#4A2878" opacity=".9"/><ellipse cx="388" cy="161" rx="7" ry="8" fill="#5A3090" opacity=".85"/>
+        <!-- label -->
+        <rect x="0" y="220" width="400" height="40" fill="rgba(74,40,120,.08)"/>
+        <text x="200" y="237" text-anchor="middle" font-size="11" fill="#5A3090" font-weight="600">Dense purple nuclei packed together</text>
+        <text x="200" y="252" text-anchor="middle" font-size="10" fill="#7A50A0">Irregular shapes, large nuclei, mitotic figures = active division</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION 2: Each class visual cues -->
+<div class="section">
+  <div class="sec-title">Visual cues for each class — what to look for</div>
+
+  <!-- CT -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#E6F1FB;color:#0C447C">0<br><small>CT</small></div>
+      <div><div class="class-name">Cellular Tumor (CT)</div><div class="class-aka">The main tumor mass — most common class (43,401 patches)</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">🟣</div><div class="cue-title">Colour</div><div class="cue-desc">Overwhelmingly dark <strong>purple/blue</strong>. Densely stained nuclei crowd out the pink background. Almost no white space.</div></div>
+      <div class="cue"><div class="cue-icon">📐</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc">Nuclei are <strong>irregular, enlarged, pleomorphic</strong> (variable shapes). Some nuclei look like they're splitting (mitotic figures). Cells packed with almost no gap.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">Uniform dense purple across the whole patch. No clear dead zones, no ring structures. Just wall-to-wall cells. Looks "congested".</div></div>
+    </div>
+  </div>
+
+  <!-- NC -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#E1F5EE;color:#085041">5<br><small>NC</small></div>
+      <div><div class="class-name">Geographic Necrosis (NC)</div><div class="class-aka">Dead tissue zones — large, pale, ghost-like areas</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">⬜</div><div class="cue-title">Colour</div><div class="cue-desc">Pale pink to almost <strong>white/grey</strong>. Dead cells lose their purple staining because DNA breaks down. Eosin (pink) also fades. Ghostly, washed-out appearance.</div></div>
+      <div class="cue"><div class="cue-icon">💀</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc"><strong>Ghost outlines</strong> of cells — you can see the shape of where cells were but no nucleus inside. "Coagulative necrosis" — the scaffold remains but the contents are gone. Irregular large zones.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">Large <strong>pale irregular lakes</strong> surrounded by darker tissue. Looks like a bleached-out patch in the middle of purple. No active cells inside — just debris.</div></div>
+    </div>
+  </div>
+
+  <!-- PN -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#FAECE7;color:#712B13">7<br><small>PN</small></div>
+      <div><div class="class-name">Pseudopalisading Necrosis (PN)</div><div class="class-aka">The classic GBM hallmark — cells forming a "fence" around dead zones</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">🟤</div><div class="cue-title">Colour</div><div class="cue-desc">Dark purple ring <strong>surrounding</strong> a pale/white centre. The dead zone is pale; the palisading cells around it are intensely purple.</div></div>
+      <div class="cue"><div class="cue-icon">🔵</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc">Cells line up in <strong>parallel rows like a picket fence</strong> around a central dead area. "Garland-like" or "wreath-like" arrangement. Nuclei orient perpendicular to the necrotic edge.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">A pale central zone with <strong>concentric rings</strong> of dense purple cells around it. The bull's-eye appearance is nearly pathognomonic (exclusively diagnostic) for GBM. This is the most dramatic-looking sub-region.</div></div>
+    </div>
+  </div>
+
+  <!-- MP -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#FAEEDA;color:#633806">4<br><small>MP</small></div>
+      <div><div class="class-name">Microvascular Proliferation (MP)</div><div class="class-aka">Abnormal new blood vessels — "glomeruloid" structures</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">🔴</div><div class="cue-title">Colour</div><div class="cue-desc">Bright <strong>pink-red channels</strong> (blood vessels) on a purple/pink background. The vessel walls stain intensely pink. Red blood cells inside stain bright red.</div></div>
+      <div class="cue"><div class="cue-icon">🌀</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc"><strong>Coiled, tangled, glomeruloid structures</strong> — looks like a little kidney glomerulus (a ball of knotted vessels). Multiple layers of endothelial cells stacking up. Abnormal, not the clean single-layer wall of a normal vessel.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">Bright pink tortuous vessel clusters dotted through the tissue. Each cluster is small (~50–200µm) but very obvious — stands out as a <strong>hot pink knot</strong> in the purple/pink background. Multiple clusters per patch.</div></div>
+    </div>
+  </div>
+
+  <!-- DM -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#FCEBEB;color:#791F1F">1<br><small>DM</small></div>
+      <div><div class="class-name">Dense Macrophages (DM)</div><div class="class-aka">Immune cells eating debris — kidney-bean shaped nuclei</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">🫘</div><div class="cue-title">Colour</div><div class="cue-desc">Medium purple nuclei with <strong>abundant pale pink/grey cytoplasm</strong>. Less intense purple than CT because the nucleus is smaller relative to the large foamy cytoplasm (macrophages are big cells).</div></div>
+      <div class="cue"><div class="cue-icon">🔄</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc">Nuclei are <strong>kidney-bean or horseshoe shaped</strong> (indented, not round). Cytoplasm looks "foamy" or "bubbly" — full of engulfed debris. Cells loosely scattered, not tightly packed like CT.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">Less dense than CT. More pink overall. Cells look "happy" and round with space around them. Usually near necrotic zones (macrophages are cleaning up dead tissue). Foamy cytoplasm is the key giveaway.</div></div>
+    </div>
+  </div>
+
+  <!-- PL -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#EEEDFE;color:#26215C">6<br><small>PL</small></div>
+      <div><div class="class-name">Presence of Lymphocytes (PL)</div><div class="class-aka">Tiny dark immune cells — rarest class (672 patches)</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">⚫</div><div class="cue-title">Colour</div><div class="cue-desc"><strong>Very dark purple, almost black</strong> small dots. Lymphocytes are almost entirely nucleus — very little cytoplasm. The darkest cells on the slide.</div></div>
+      <div class="cue"><div class="cue-icon">🔵</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc"><strong>Tiny perfectly round</strong> dense nuclei — like small dark beads. Much smaller than tumor cells. Often in clusters around blood vessels ("perivascular cuffing") or scattered in groups.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">Small clusters of tiny dark dots near vessels or in the tumor edge. Easy to miss — they're small. Look for the <strong>size contrast</strong>: lymphocytes are much smaller than tumor cells. Often a 128×128 ROI within the 512×512 patch.</div></div>
+    </div>
+  </div>
+
+  <!-- LI -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#FBEAF0;color:#4B1528">3<br><small>LI</small></div>
+      <div><div class="class-name">Leptomeningeal Infiltration (LI)</div><div class="class-aka">Tumor in the brain membranes — very rare (1,534 patches)</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">🩹</div><div class="cue-title">Colour</div><div class="cue-desc">Mix of <strong>bright pink fibrous tissue</strong> (the meninges — collagen-rich, stains intensely with eosin) and <strong>dark purple tumor cell clusters</strong> invading it.</div></div>
+      <div class="cue"><div class="cue-icon">🌊</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc">A <strong>layered or sheet-like structure</strong> — the fibrous membrane layer is clearly visible as a pink band, with tumor cells growing along or through it. The tumor seems to "coat" the membrane surface.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">Distinctive pink fibrous background (not seen in CT or NC) with dark purple invasion. The fibrous connective tissue layer is the landmark — tumor is infiltrating a structure that shouldn't have tumor cells.</div></div>
+    </div>
+  </div>
+
+  <!-- IC / WM -->
+  <div class="class-card">
+    <div class="class-header">
+      <div class="class-id-bubble" style="background:#EAF3DE;color:#27500A">2/8<br><small>IC&WM</small></div>
+      <div><div class="class-name">Cortex Infiltration (IC) & White Matter (WM)</div><div class="class-aka">Tumor invading surrounding brain tissue — normal architecture visible</div></div>
+    </div>
+    <div class="class-body">
+      <div class="cue"><div class="cue-icon">🩶</div><div class="cue-title">Colour</div><div class="cue-desc"><strong>Mixed pink and purple</strong> — normal brain tissue (pale pink) with scattered infiltrating tumor cells (dark purple). Not uniformly dense like CT. The background is clearly "brain".</div></div>
+      <div class="cue"><div class="cue-icon">🏘️</div><div class="cue-title">Shape / arrangement</div><div class="cue-desc">Normal brain architecture is <strong>still partially visible</strong> — you can see normal neurons/glial cells alongside infiltrating tumor cells. WM shows white matter fiber tract patterns. Tumor cells look "out of place" in an otherwise normal-looking background.</div></div>
+      <div class="cue"><div class="cue-icon">🗺️</div><div class="cue-title">Overall pattern</div><div class="cue-desc">Sparse infiltrating cells — not the wall-to-wall density of CT. <strong>Normal tissue + scattered invaders</strong>. IC shows cortical layering. WM shows fiber tracks. The key: you can still see what's "supposed to be there".</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION 3: Stain variation -->
+<div class="section">
+  <div class="sec-title">The cross-site staining problem — why the same tissue looks different</div>
+  <p class="prose">This is the core reason the AI generalisation gap exists. The same class (e.g. cellular tumor) can look <strong>very different</strong> depending on which hospital scanned it and with which protocol. The visual features are the same biologically — but the colours shift significantly.</p>
+  <div class="stain-row">
+    <div class="stain-card">
+      <div class="stain-preview" style="background:linear-gradient(135deg,#7B4FA8,#9B6FC8,#C090E0,#E8C8F0);color:#3a1870">Hospital A<br>Deep violet</div>
+      <div class="stain-label">Strong haematoxylin — very purple, high contrast</div>
+    </div>
+    <div class="stain-card">
+      <div class="stain-preview" style="background:linear-gradient(135deg,#C88080,#D8A0A0,#E8C0C0,#F5E0E0);color:#6a2020">Hospital B<br>Pinkish-red</div>
+      <div class="stain-label">Over-eosin — pink dominates, nuclei less distinct</div>
+    </div>
+    <div class="stain-card">
+      <div class="stain-preview" style="background:linear-gradient(135deg,#5070B8,#7090C8,#90B0D8,#C0D8F0);color:#1a3060">Hospital C<br>Blue-shifted</div>
+      <div class="stain-label">Different scanner white balance — blue tint</div>
+    </div>
+    <div class="stain-card">
+      <div class="stain-preview" style="background:linear-gradient(135deg,#9060A0,#B080C0,#C8A0D0,#E0C8E8);color:#4a1860">Hospital D<br>Muted purple</div>
+      <div class="stain-label">Faded stain / older section — lower contrast</div>
+    </div>
+  </div>
+  <div style="background:#FFF8E1;border-radius:8px;padding:12px 14px;border:1px solid #FFD54F;margin-top:12px">
+    <p style="font-size:13px;color:#7a5800;line-height:1.6"><strong>This is exactly why SAP-LeJEPA uses stain-invariant training:</strong> The context view gets stain augmentation (random colour jitter simulating different hospitals), but the target encoding stays in canonical stain space. The model learns "this pattern = cellular tumor" regardless of whether the purple is deep violet, pinkish, or blue-shifted. Without this, the model memorises the colour of Hospital A's stain — and fails on Hospital B's slides.</p>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SECTION 4: Quick reference -->
+<div class="section">
+  <div class="sec-title">Quick visual reference — pathologist's mental checklist</div>
+  <ul class="rule-list">
+    <li class="rule-item"><div class="rule-icon">🟣</div><div class="rule-text"><strong>Wall-to-wall dark purple, irregular nuclei</strong> → Cellular Tumor (CT)</div></li>
+    <li class="rule-item"><div class="rule-icon">⬜</div><div class="rule-text"><strong>Pale/white ghost zones, no nuclei</strong> → Geographic Necrosis (NC)</div></li>
+    <li class="rule-item"><div class="rule-icon">🎯</div><div class="rule-text"><strong>Purple cells in rings around pale centre</strong> → Pseudopalisading Necrosis (PN)</div></li>
+    <li class="rule-item"><div class="rule-icon">🌀</div><div class="rule-text"><strong>Tangled bright-pink vessel knots</strong> → Microvascular Proliferation (MP)</div></li>
+    <li class="rule-item"><div class="rule-icon">🫘</div><div class="rule-text"><strong>Kidney-bean nuclei, foamy cytoplasm</strong> → Dense Macrophages (DM)</div></li>
+    <li class="rule-item"><div class="rule-icon">⚫</div><div class="rule-text"><strong>Tiny very dark round dots near vessels</strong> → Lymphocytes (PL)</div></li>
+    <li class="rule-item"><div class="rule-icon">🩹</div><div class="rule-text"><strong>Pink fibrous sheet + invading purple cells</strong> → Leptomeningeal (LI)</div></li>
+    <li class="rule-item"><div class="rule-icon">🏘️</div><div class="rule-text"><strong>Normal brain + sparse infiltrating cells</strong> → IC or WM</div></li>
+    <li class="rule-item"><div class="rule-icon">🩶</div><div class="rule-text"><strong>Nothing specific, mixed appearance</strong> → NOTA (class 9)</div></li>
+    <li class="rule-item"><div class="rule-icon">📏</div><div class="rule-text"><strong>Overall density rule:</strong> CT &gt; PN ring &gt; IC/WM &gt; DM &gt; NC (palest)</div></li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>

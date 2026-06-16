@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BraTS-Path Abstract — Visual Explainer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f8f5; color: #1a1a1a; padding: 2rem 1rem; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #666; margin-bottom: 2rem; }
+  .sec { margin-bottom: 2.4rem; }
+  .sec-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #888; margin-bottom: 10px; }
+  .sent { font-size: 14px; line-height: 1.7; padding: 12px 16px; border-radius: 8px; border: 1px solid #e5e3dc; background: #fff; margin-bottom: 12px; }
+  .sent mark { background: #FFF0C2; color: #7A5000; border-radius: 3px; padding: 0 3px; font-style: normal; }
+  .sent em { color: #1a5fa8; font-style: normal; font-weight: 500; }
+  .divider { height: 1px; background: #e5e3dc; margin: 24px 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .card { background: #fff; border: 1px solid #e5e3dc; border-radius: 8px; padding: 12px 14px; }
+  .card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .card-body { font-size: 12px; color: #555; line-height: 1.55; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
+  .flow { display: flex; align-items: center; gap: 0; overflow-x: auto; padding: 6px 0; flex-wrap: nowrap; }
+  .flow-node { flex-shrink: 0; padding: 7px 11px; border-radius: 8px; font-size: 12px; font-weight: 500; text-align: center; min-width: 80px; line-height: 1.3; }
+  .flow-arr { flex-shrink: 0; padding: 0 5px; color: #aaa; font-size: 16px; }
+  .class-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0ede6; }
+  .class-row:last-child { border-bottom: none; }
+  .cls-id { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px; flex-shrink: 0; margin-top: 2px; }
+  .cls-name { font-size: 13px; font-weight: 600; min-width: 190px; flex-shrink: 0; }
+  .cls-desc { font-size: 12px; color: #555; line-height: 1.5; }
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .bar-label { font-size: 12px; color: #666; width: 40px; text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 16px; background: #f0ede6; border-radius: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 8px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; color: #fff; }
+  .bar-count { font-size: 11px; color: #888; width: 56px; flex-shrink: 0; }
+  .highlight { border-left: 3px solid #f0a500; background: #FFFBE6; padding: 10px 14px; border-radius: 0 8px 8px 0; }
+  .highlight p { font-size: 12px; color: #7A5000; line-height: 1.5; }
+  .info-box { background: #E8F1FB; border-radius: 8px; padding: 12px 14px; margin-top: 10px; }
+  .info-box p { font-size: 12px; color: #1a5fa8; line-height: 1.55; }
+  .gap-track { height: 20px; border-radius: 10px; overflow: hidden; display: flex; margin: 5px 0 12px; }
+  .gap-a { background: #378ADD; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 700; color: #fff; }
+  .gap-b { background: #E24B4A; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 700; color: #fff; }
+  .gap-empty { background: #e5e3dc; flex: 1; }
+  .step { display: flex; gap: 12px; margin-bottom: 14px; }
+  .step-dot { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .step-body .t { font-size: 13px; font-weight: 600; display: block; margin-bottom: 3px; }
+  .step-body .s { font-size: 12px; color: #555; line-height: 1.5; }
+  .tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 3px; font-weight: 600; margin-right: 4px; }
+  svg text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🧠 BraTS-Path Abstract — Visual Explainer</h1>
+  <p class="subtitle">Every sentence, every domain term explained in plain English with visuals</p>
+
+  <!-- S1 -->
+  <div class="sec">
+    <div class="sec-label">Sentence 1 — The disease</div>
+    <div class="sent">"<mark>Glioblastoma</mark> is the most common <em>primary adult brain tumor</em>, with a grim prognosis — median survival of <mark>12–18 months</mark> following treatment, and <mark>4 months</mark> otherwise."</div>
+    <div class="grid2">
+      <div class="card"><div class="badge" style="background:#FCEBEB;color:#A32D2D">Term</div><div class="card-title">Glioblastoma (GBM)</div><div class="card-body">Cancer that starts in the brain itself, growing from glial cells (the brain's structural support cells). Most aggressive and most common malignant adult brain tumor. Even with full treatment — surgery + radiation + chemo — most patients survive under 18 months.</div></div>
+      <div class="card"><div class="badge" style="background:#E6F1FB;color:#185FA5">Term</div><div class="card-title">Primary tumor</div><div class="card-body">The cancer <em>originated</em> in the brain — not spread from somewhere else (lung, breast, etc.). "Secondary" or "metastatic" brain tumors came from outside. Primary tumors are fundamentally different in how they behave and are treated.</div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S2 -->
+  <div class="sec">
+    <div class="sec-label">Sentence 2 — Why it's hard to treat</div>
+    <div class="sent">"Glioblastoma is <mark>widely infiltrative</mark> in the cerebral hemispheres and well-defined by <mark>heterogeneous molecular and micro-environmental histopathologic profiles</mark>, which pose a major obstacle in treatment."</div>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="card"><div class="badge" style="background:#E1F5EE;color:#085041">Term</div><div class="card-title">Widely infiltrative</div><div class="card-body">The tumor does not have a clean round boundary. Its cells spread like tentacles into surrounding normal brain — making complete surgical removal impossible. You'd have to remove too much normal brain to get it all.</div></div>
+      <div class="card"><div class="badge" style="background:#EEEDFE;color:#3C3489">Term</div><div class="card-title">Heterogeneous</div><div class="card-body">Different regions of the <em>same tumor</em> look and behave completely differently under a microscope. One area is packed with live cancer cells, another is dead tissue, another is full of new blood vessels. This is the core challenge.</div></div>
+      <div class="card"><div class="badge" style="background:#FAEEDA;color:#633806">Term</div><div class="card-title">Histopathologic profiles</div><div class="card-body"><em>Histo</em> = tissue, <em>patho</em> = disease, <em>logic</em> = study. So: "the visual patterns seen when examining diseased tissue under a microscope." Each sub-region has a distinctive visual signature that expert pathologists recognize.</div></div>
+      <div class="card"><div class="badge" style="background:#FBEAF0;color:#993556">Term</div><div class="card-title">Micro-environmental</div><div class="card-body">The tumor's immediate surroundings at the cellular scale — immune cells attacking it, blood vessels feeding it, dead zones starving for oxygen. This "microenvironment" determines how the tumor grows and resists treatment.</div></div>
+    </div>
+    <div class="highlight"><p><strong>Key insight:</strong> Because GBM is heterogeneous, a single biopsy from one spot doesn't tell the whole story. AI that can map the entire slide and identify all sub-regions gives clinicians a complete picture — not just one snapshot.</p></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S3 -->
+  <div class="sec">
+    <div class="sec-label">Sentence 3 — Why diagnosis matters for treatment</div>
+    <div class="sent">"Correctly diagnosing these tumors and assessing their <mark>heterogeneity</mark> is crucial for choosing the <em>precise treatment</em> and potentially enhancing patient survival rates."</div>
+    <div class="flow" style="margin: 12px 0">
+      <div class="flow-node" style="background:#E6F1FB;color:#0C447C;border:1px solid #B5D4F4">Biopsy<br>taken</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node" style="background:#EAF3DE;color:#27500A;border:1px solid #C0DD97">Pathologist<br>examines slide</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node" style="background:#FAEEDA;color:#633806;border:1px solid #FAC775">Sub-regions<br>identified</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node" style="background:#EEEDFE;color:#3C3489;border:1px solid #CECBF6">Precise<br>treatment plan</div>
+      <div class="flow-arr">→</div>
+      <div class="flow-node" style="background:#E1F5EE;color:#085041;border:1px solid #9FE1CB">Better<br>outcomes</div>
+    </div>
+    <p style="font-size:12px;color:#555;line-height:1.5">A tumor dominated by pseudopalisading necrosis (aggressive, hypoxic) needs different treatment than one mostly cellular tumor. Knowing the exact composition guides decisions on radiation dose, drug choice, and surgical approach.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S4 -->
+  <div class="sec">
+    <div class="sec-label">Sentence 4 — The current diagnostic approach</div>
+    <div class="sent">"In the <mark>gold-standard histopathology-based approach</mark> to tumor diagnosis, detecting various <em>morpho-pathological features</em> of distinct histology throughout <mark>digitized tissue sections</mark> is crucial."</div>
+    <div class="grid3">
+      <div class="card" style="text-align:center"><div style="font-size:24px;margin-bottom:6px">🔬</div><div class="card-title">Gold standard = histopathology</div><div class="card-body">The definitive diagnosis comes from examining actual tumor tissue under a microscope. Not MRI, not blood tests — the physical tissue slice, stained with dyes, examined by a specialist.</div></div>
+      <div class="card" style="text-align:center"><div style="font-size:24px;margin-bottom:6px">🧬</div><div class="card-title">Morpho-pathological features</div><div class="card-body"><em>Morpho</em> = shape/structure. These are the visual patterns that indicate disease: how densely packed cells are, dead zones, new blood vessel formations, immune cell clusters.</div></div>
+      <div class="card" style="text-align:center"><div style="font-size:24px;margin-bottom:6px">💻</div><div class="card-title">Digitized tissue sections</div><div class="card-body">A glass slide with tumor tissue is scanned at ~40,000×40,000 pixels to create a "Whole Slide Image" (WSI). This digital file is what the AI models analyze — and what the 80 unlabeled .tiff files are.</div></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S5 — 9 FEATURES -->
+  <div class="sec">
+    <div class="sec-label">Sentence 5 — The 9 specific features (= 9 of your 10 classes)</div>
+    <div class="sent">"Such 'features' include the presence of <em>cellular tumor</em>, <em>geographic necrosis</em>, <em>pseudopalisading necrosis</em>, areas abundant in <em>microvascular proliferation</em>, <em>infiltration into the cortex</em>, wide extension in <em>subcortical white matter</em>, <em>leptomeningeal infiltration</em>, regions dense with <em>macrophages</em>, and the presence of <em>lymphocytes</em>."</div>
+
+    <!-- SVG node map -->
+    <svg width="100%" viewBox="0 0 860 540" role="img">
+      <title>Nine GBM sub-region classes as a node diagram</title>
+      <defs>
+        <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+          <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </marker>
+      </defs>
+
+      <!-- CENTER -->
+      <rect x="325" y="225" width="210" height="56" rx="12" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="1.5"/>
+      <text x="430" y="248" text-anchor="middle" font-size="14" font-weight="600" fill="#26215C">GBM tumor slide</text>
+      <text x="430" y="265" text-anchor="middle" font-size="12" fill="#534AB7">10 classes to predict (0–9)</text>
+
+      <!-- LEFT NODES -->
+      <!-- CT -->
+      <rect x="20" y="15" width="168" height="58" rx="8" fill="#E6F1FB" stroke="#85B7EB" stroke-width="0.8"/>
+      <text x="104" y="37" text-anchor="middle" font-size="12" font-weight="600" fill="#0C447C">0 · Cellular tumor (CT)</text>
+      <text x="104" y="53" text-anchor="middle" font-size="11" fill="#185FA5">Dense live cancer cells</text>
+      <text x="104" y="66" text-anchor="middle" font-size="11" fill="#185FA5">The main tumor mass</text>
+      <line x1="188" y1="52" x2="325" y2="242" stroke="#85B7EB" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- NC -->
+      <rect x="20" y="110" width="168" height="58" rx="8" fill="#E1F5EE" stroke="#5DCAA5" stroke-width="0.8"/>
+      <text x="104" y="132" text-anchor="middle" font-size="12" font-weight="600" fill="#085041">5 · Geographic necrosis (NC)</text>
+      <text x="104" y="148" text-anchor="middle" font-size="11" fill="#0F6E56">Large dead tissue zones</text>
+      <text x="104" y="161" text-anchor="middle" font-size="11" fill="#0F6E56">Tumor outgrew blood supply</text>
+      <line x1="188" y1="140" x2="325" y2="248" stroke="#5DCAA5" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- PN -->
+      <rect x="20" y="205" width="168" height="58" rx="8" fill="#FAECE7" stroke="#F0997B" stroke-width="0.8"/>
+      <text x="104" y="227" text-anchor="middle" font-size="12" font-weight="600" fill="#712B13">7 · Pseudopalisading (PN)</text>
+      <text x="104" y="243" text-anchor="middle" font-size="11" fill="#993C1D">Cells lining up around</text>
+      <text x="104" y="256" text-anchor="middle" font-size="11" fill="#993C1D">dead zones — classic GBM sign</text>
+      <line x1="188" y1="234" x2="325" y2="253" stroke="#F0997B" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- MP -->
+      <rect x="20" y="300" width="168" height="58" rx="8" fill="#FAEEDA" stroke="#EF9F27" stroke-width="0.8"/>
+      <text x="104" y="322" text-anchor="middle" font-size="12" font-weight="600" fill="#633806">4 · Microvascular (MP)</text>
+      <text x="104" y="338" text-anchor="middle" font-size="11" fill="#854F0B">Abnormal new blood vessels</text>
+      <text x="104" y="351" text-anchor="middle" font-size="11" fill="#854F0B">Tumor needing more oxygen</text>
+      <line x1="188" y1="328" x2="325" y2="263" stroke="#EF9F27" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- IC -->
+      <rect x="20" y="395" width="168" height="58" rx="8" fill="#EAF3DE" stroke="#97C459" stroke-width="0.8"/>
+      <text x="104" y="417" text-anchor="middle" font-size="12" font-weight="600" fill="#27500A">2 · Cortex infiltration (IC)</text>
+      <text x="104" y="433" text-anchor="middle" font-size="11" fill="#3B6D11">Tumor spreading into</text>
+      <text x="104" y="446" text-anchor="middle" font-size="11" fill="#3B6D11">brain's gray matter layer</text>
+      <line x1="188" y1="423" x2="325" y2="268" stroke="#97C459" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- RIGHT NODES -->
+      <!-- WM -->
+      <rect x="672" y="15" width="168" height="58" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.8"/>
+      <text x="756" y="37" text-anchor="middle" font-size="12" font-weight="600" fill="#042C53">8 · White matter (WM)</text>
+      <text x="756" y="53" text-anchor="middle" font-size="11" fill="#0C447C">Tumor in nerve fiber tracts</text>
+      <text x="756" y="66" text-anchor="middle" font-size="11" fill="#0C447C">Hard to surgically remove</text>
+      <line x1="672" y1="52" x2="535" y2="242" stroke="#378ADD" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- LI -->
+      <rect x="672" y="110" width="168" height="58" rx="8" fill="#FBEAF0" stroke="#ED93B1" stroke-width="0.8"/>
+      <text x="756" y="132" text-anchor="middle" font-size="12" font-weight="600" fill="#4B1528">3 · Leptomeningeal (LI)</text>
+      <text x="756" y="148" text-anchor="middle" font-size="11" fill="#72243E">Spread to brain membranes</text>
+      <text x="756" y="161" text-anchor="middle" font-size="11" fill="#72243E">Advanced disease stage</text>
+      <line x1="672" y1="140" x2="535" y2="248" stroke="#ED93B1" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- DM -->
+      <rect x="672" y="205" width="168" height="58" rx="8" fill="#FCEBEB" stroke="#F09595" stroke-width="0.8"/>
+      <text x="756" y="227" text-anchor="middle" font-size="12" font-weight="600" fill="#501313">1 · Dense macrophages (DM)</text>
+      <text x="756" y="243" text-anchor="middle" font-size="11" fill="#791F1F">Immune cells eating</text>
+      <text x="756" y="256" text-anchor="middle" font-size="11" fill="#791F1F">dead cell debris</text>
+      <line x1="672" y1="234" x2="535" y2="253" stroke="#F09595" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- PL -->
+      <rect x="672" y="300" width="168" height="58" rx="8" fill="#EEEDFE" stroke="#AFA9EC" stroke-width="0.8"/>
+      <text x="756" y="322" text-anchor="middle" font-size="12" font-weight="600" fill="#26215C">6 · Lymphocytes (PL)</text>
+      <text x="756" y="338" text-anchor="middle" font-size="11" fill="#3C3489">Immune attack on tumor</text>
+      <text x="756" y="351" text-anchor="middle" font-size="11" fill="#3C3489">Rarest class — only 672 patches</text>
+      <line x1="672" y1="328" x2="535" y2="263" stroke="#AFA9EC" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- NOTA -->
+      <rect x="672" y="395" width="168" height="58" rx="8" fill="#f0ede6" stroke="#c8c5bc" stroke-width="0.8"/>
+      <text x="756" y="417" text-anchor="middle" font-size="12" font-weight="600" fill="#3a3a38">9 · NOTA</text>
+      <text x="756" y="433" text-anchor="middle" font-size="11" fill="#666">None of the above</text>
+      <text x="756" y="446" text-anchor="middle" font-size="11" fill="#666">Background / unclassified</text>
+      <line x1="672" y1="423" x2="535" y2="268" stroke="#c8c5bc" stroke-width="0.8" fill="none" marker-end="url(#a)"/>
+
+      <!-- bottom note -->
+      <text x="430" y="505" text-anchor="middle" font-size="11" fill="#888">Each 512×512 pixel patch = 1 independent prediction. Model picks exactly one class.</text>
+      <text x="430" y="522" text-anchor="middle" font-size="11" fill="#888">No "multiple classes per patch" — one tile, one label.</text>
+    </svg>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CLASS IMBALANCE -->
+  <div class="sec">
+    <div class="sec-label">The imbalance problem — why accuracy is a useless metric here</div>
+    <p style="font-size:12px;color:#555;line-height:1.5;margin-bottom:12px">The paper explicitly flags class imbalance as a key challenge. CT has 65× more patches than PL. A model that predicts "CT" for everything would get 38% accuracy but be completely useless. This is why macro-F1 and MCC are the real metrics.</p>
+    <div style="background:#fff;border:1px solid #e5e3dc;border-radius:8px;padding:14px">
+      <div class="bar-row"><span class="bar-label">CT</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#378ADD">43,401</div></div><span class="bar-count" style="color:#378ADD">★ Most</span></div>
+      <div class="bar-row"><span class="bar-label">NC</span><div class="bar-track"><div class="bar-fill" style="width:56%;background:#1D9E75">24,438</div></div><span class="bar-count"></span></div>
+      <div class="bar-row"><span class="bar-label">IC</span><div class="bar-track"><div class="bar-fill" style="width:33%;background:#639922">14,500</div></div><span class="bar-count"></span></div>
+      <div class="bar-row"><span class="bar-label">PN</span><div class="bar-track"><div class="bar-fill" style="width:23%;background:#BA7517">10,101</div></div><span class="bar-count"></span></div>
+      <div class="bar-row"><span class="bar-label">WM</span><div class="bar-track"><div class="bar-fill" style="width:13%;background:#D85A30">5,791</div></div><span class="bar-count"></span></div>
+      <div class="bar-row"><span class="bar-label">MP</span><div class="bar-track"><div class="bar-fill" style="width:11%;background:#D4537E">5,115</div></div><span class="bar-count"></span></div>
+      <div class="bar-row"><span class="bar-label">DM</span><div class="bar-track"><div class="bar-fill" style="width:4%;background:#7F77DD">1,788</div></div><span class="bar-count"></span></div>
+      <div class="bar-row"><span class="bar-label">LI</span><div class="bar-track"><div class="bar-fill" style="width:3.5%;background:#9563C0">1,534</div></div><span class="bar-count"></span></div>
+      <div class="bar-row"><span class="bar-label">PL</span><div class="bar-track"><div class="bar-fill" style="width:1.5%;background:#E24B4A">672</div></div><span class="bar-count" style="color:#E24B4A">⚠ Rarest</span></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- GENERALISATION GAP -->
+  <div class="sec">
+    <div class="sec-label">The central unsolved problem — the generalisation gap</div>
+    <p style="font-size:12px;color:#555;line-height:1.5;margin-bottom:12px">The 2024 EfficientNet baseline revealed a catastrophic gap between training and deployment. This gap is what Hassan's SAP-LeJEPA targets.</p>
+    <div style="background:#fff;border:1px solid #e5e3dc;border-radius:8px;padding:14px">
+      <p style="font-size:12px;color:#888;margin-bottom:5px">Cross-validation F1 — same institution data (model has "seen" this style of image)</p>
+      <div class="gap-track"><div class="gap-a" style="width:98%">F1 = 0.98 ✓</div></div>
+      <p style="font-size:12px;color:#888;margin-bottom:5px">Hidden test F1 — different institution, different scanner, different staining protocol</p>
+      <div class="gap-track"><div class="gap-b" style="width:52%">F1 = 0.52 ✗</div><div class="gap-empty"></div></div>
+      <p style="font-size:11px;color:#888;margin-top:8px;line-height:1.5"><strong>Why?</strong> Hospital A's tissue looks pink-purple. Hospital B's looks more blue-violet. Same disease, same sub-region, but the AI thinks they're different. Stain-invariant training is the fix — which is exactly what the stain-aware view generation in SAP-LeJEPA does.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FINAL GOAL -->
+  <div class="sec">
+    <div class="sec-label">Sentence 6 & 7 — The challenge goal and clinical mission</div>
+    <div class="sent">"The goal of the BraTS-Path challenge is to provide a <em>systematically prepared comprehensive dataset</em> and a <em>benchmarking environment</em> to develop and fairly compare <mark>deep-learning models</mark> capable of identifying tumor sub-regions of distinct histologic profile. These models aim to <em>further our understanding</em> of the disease and <em>assist in the diagnosis and grading</em> of conditions in a consistent manner."</div>
+    <div class="grid3">
+      <div class="card" style="text-align:center"><div style="font-size:22px;margin-bottom:6px">📦</div><div class="card-title">Dataset</div><div class="card-body">1M+ expert-labeled patches from 11 international institutions. Publicly available on Synapse. The largest annotated GBM histopathology dataset ever created.</div></div>
+      <div class="card" style="text-align:center"><div style="font-size:22px;margin-bottom:6px">⚖️</div><div class="card-title">Benchmark</div><div class="card-body">Same test set for everyone, same metrics. "My model beats yours" is now a verifiable scientific claim — not just a number on a different dataset.</div></div>
+      <div class="card" style="text-align:center"><div style="font-size:22px;margin-bottom:6px">🏥</div><div class="card-title">Clinical impact</div><div class="card-body">AI that maps an entire tumor slide in seconds vs. hours of pathologist time. Consistent — no inter-annotator variability. Can guide immunotherapy, radiation planning, and drug selection.</div></div>
+    </div>
+    <div class="info-box" style="margin-top:12px">
+      <p><strong>Where Hassan's work fits:</strong> SAP-LeJEPA is a submission to this benchmark. The scientific contribution is showing that principled in-domain self-supervised learning (LeJEPA + SIGReg + stain-aware masking) can close the 0.98 → 0.52 generalisation gap — which is the challenge's central unsolved problem.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
